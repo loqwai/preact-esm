@@ -3,8 +3,8 @@
   import { signal } from 'preact/signals';
 
   const count = signal(0);
-  function App() {
-    return html`
+  // get
+  const App = () => html`
     <div>
       <h1 class>Hello World!</h1>
       <button onClick=${() => (count.value += 1)}>
@@ -13,8 +13,7 @@
       <p>Counter: ${count}</p>
     </div>
   `;
-  }
 
-  render(html`<${App} />`, document.getElementById("app"));
+  render(html`<${App} />`, document.body);
 
 
