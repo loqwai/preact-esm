@@ -1,7 +1,5 @@
 const CACHE_NAME = 'esm-cache-v1';
 
-
-
 const cacheCdnRequests = async (request) =>{
   const url = new URL(request.url);
   if (url.origin !== 'https://esm.sh') return fetch(request);

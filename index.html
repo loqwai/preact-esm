@@ -4,9 +4,7 @@
 <head>
   <script>
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/esm-cache-service-worker.js').then(registration => {
-        console.log('Service Worker registered with scope:', registration.scope);
-      }).catch(error => {
+      navigator.serviceWorker.register('/cdn-cacher.js').catch(error => {
         console.error('Service Worker registration failed:', error);
       });
     });
@@ -20,9 +18,12 @@
     }
   }
 </script>
-  <script type="module" src="./script.js">
+  <script type="module">
+    import { render } from 'preact'
+    import { html } from 'htm'
+    import { App } from '/App'
+    render(html`<${App} />`, document.body);
   </script>
-  <title>Home</title>
 </head>
 
 <body>
