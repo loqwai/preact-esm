@@ -1,0 +1,23 @@
+.CollapsableSection > header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: rgb(74, 80, 68);
+    color: white;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    /* don't select text */
+    user-select: none;
+    /* round top corners */
+    border-top-left-radius: 5px;
+}
+.CollapsableSection > div {
+    transition: max-height 0.1s;
+    background-color: rgb(222, 213, 194);
+    max-height: 100vh;
+    overflow: hidden;
+}
+.CollapsableSection.collapsed > div {
+    max-height: 0;
+}
