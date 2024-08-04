@@ -1,14 +1,11 @@
 import { html } from 'htm';
 import { signal, computed, effect } from 'preact/signals';
+import {OpenAI} from 'openai'
+const openapiKey = signal(localStorage.getItem("OPENAPI_KEY") ?? '');
 
-const name = signal(window.location.hash);
-const charactersInName = computed(()=>name.value.length);
-const isAHacker = computed(()=>name.value === 'redaphid');
+const configOpen = signal(true);
+
 effect(()=>{
-<<<<<<< Updated upstream
-  window.location.hash = name.value
-});
-=======
   localStorage.setItem("OPENAPI_KEY", openapiKey.value);
 })
 
@@ -31,17 +28,25 @@ const testOpenApiKey = async () => {
 
 const OpenApiSuccessResult = () => {
   if (openApiTestResult.value === "NOT_TESTED") return "❔"
-  if (openApiTestResult.value === "SUCCESSFUL") return "✅";
-  return "❌";
+  if (openApiTestResult.value === "SUCCESSFUL") return "✅"
+  if (openApiTestResult.value === "FAILED") return "❌"
+  return "❓"
 }
 
->>>>>>> Stashed changes
 export const App = () => html`
-  <div>
-  <h1 class=${isAHacker.value === true ? 'hacker': 'not-a-hacker'}>Hi ${name}</h1>
-  <h2>You have ${charactersInName} characters in your name</h2>
-  <form onSubmit=${(e)=>e.preventDefault()}>
-    <label>a <input value=${name} onInput=${(e)=>name.value = e.currentTarget.value} /></label>
-  </form>
+<div>
+  <${CollapsableSection} title="Configuration" open=${configOpen}>
+    <label> OpenAPI Key: <input value=${openapiKey} onChange=${(e)=>openapiKey.value = e.currentTarget.value}/> </label>
+    <button onClick=${testOpenApiKey}>Test</button>
+    <${OpenApiSuccessResult}/>
+  </${CollapsableSection}>
+
 </div>
 `;
+
+const CollapsableSection = ({title, open, children}) =>
+  html`<section className="CollapsableSection ${ !open.value ? 'collapsed' : ''}" >
+     <header onClick=${()=>open.value = !open.value}>${title}</header>
+     <div>${children}</div>
+  </section>
+`

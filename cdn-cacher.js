@@ -1,8 +1,12 @@
 const CACHE_NAME = 'esm-cache-v1';
 
-const cacheCdnRequests = async (request) =>{
+const cdns = [
+  "https://unpkg.com",
+  "https://esm.sh",
+]
+const cacheCdnRequests = async (request) => {
   const url = new URL(request.url);
-  if (url.origin !== 'https://esm.sh') return fetch(request);
+  if(!cdns.includes(url.origin)) return fetch(request);
 
   const cache = await caches.open(CACHE_NAME);
   const response = await cache.match(request);
