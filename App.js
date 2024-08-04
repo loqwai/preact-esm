@@ -27,9 +27,10 @@ const testOpenApiKey = async () => {
 }
 
 const OpenApiSuccessResult = () => {
-  if (openApiTestResult.value === "NOT_TESTED") return html`<i class="ph-smiley"></i>`
-  if (openApiTestResult.value === "SUCCESSFUL") return html`<i class="ph-check"></i>`;
-  return html`<div>Failed</div>`;
+  if (openApiTestResult.value === "NOT_TESTED") return "❔"
+  if (openApiTestResult.value === "SUCCESSFUL") return "✅"
+  if (openApiTestResult.value === "FAILED") return "❌"
+  return "❓"
 }
 
 export const App = () => html`
