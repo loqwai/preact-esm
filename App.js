@@ -1,17 +1,17 @@
 import { html } from 'htm';
-import { signal, computed, effect } from 'preact/signals';
+import { signal, useSignal, useComputed, computed, effect } from 'preact/signals';
 import {OpenAI} from 'openai'
 
 const openApiKey = signal(localStorage.getItem("OPENAPI_KEY") ?? '');
 const openApiKeyValid = signal(localStorage.getItem("OPENAPI_KEY_VALID") === "true");
 
-const configOpen = signal(!openApiKeyValid.value);
+
 const openApiTestResult = signal(openApiKeyValid.value ? "SUCCESSFULL": "NOT_TESTED");
+const configOpen = computed(()=> openApiTestResult.value !== "SUCCESSFULL")
 
 effect(()=>{
   localStorage.setItem("OPENAPI_KEY", openApiKey.value);
   localStorage.setItem("OPENAPI_KEY_VALID", String(openApiTestResult.value === 'SUCCESSFULL'));
-  if(openApiTestResult.value === "FAILED") configOpen.value = true;
 })
 
 effect(()=>{
@@ -50,9 +50,13 @@ export const App = () => html`
 </div>
 `;
 
-const CollapsableSection = ({title, open, children}) =>
-  html`<section className="CollapsableSection ${ !open.value ? 'collapsed' : ''}" >
-     <header onClick=${()=>open.value = !open.value}>${title}</header>
+const CollapsableSection = ({title, open:externallyOpen, children}) => {
+  const manuallyOpen = useSignal(false);
+  const open = useComputed(()=> manuallyOpen.value || externallyOpen.value);
+
+  return html`<section className="CollapsableSection ${ !open.value ? 'collapsed' : ''}" >
+     <header onClick=${()=>manuallyOpen.value = !manuallyOpen.value}>${title}</header>
      <div>${children}</div>
   </section>
 `
+}
