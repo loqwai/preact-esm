@@ -1,17 +1,24 @@
 import { html } from 'htm';
-import { signal, useSignal, useComputed, computed, effect } from 'preact/signals';
+import { Signal, signal, useSignal, useComputed, computed, effect } from 'preact/signals';
 import {OpenAI} from 'openai'
 
-const openApiKey = signal(localStorage.getItem("OPENAPI_KEY") ?? '');
+/** @typedef {"SUCCESSFULL"|"FAILED"|"UNKNOWN"} ApiTest */
+
+const ApiTest = {
+  Success: "SUCCESSFULL",
+  Failed: "FAILED",
+  Unknown: "UNKNOWN",
+}
+const openApiKey = signal(localStorage.getItem("OPENAPI_KEY") ?? "");
 const openApiKeyValid = signal(localStorage.getItem("OPENAPI_KEY_VALID") === "true");
 
-
-const openApiTestResult = signal(openApiKeyValid.value ? "SUCCESSFULL": "NOT_TESTED");
-const configOpen = computed(()=> openApiTestResult.value !== "SUCCESSFULL")
+/** @type {Signal<ApiTest>} */
+const openApiTestResult = signal(openApiKeyValid.value ? ApiTest.Success : ApiTest.Unknown);
+const configOpen = computed(()=> openApiTestResult.value !== ApiTest.Success)
 
 effect(()=>{
   localStorage.setItem("OPENAPI_KEY", openApiKey.value);
-  localStorage.setItem("OPENAPI_KEY_VALID", String(openApiTestResult.value === 'SUCCESSFULL'));
+  localStorage.setItem("OPENAPI_KEY_VALID", String(openApiTestResult.value === ApiTest.Success));
 })
 
 effect(()=>{
@@ -20,22 +27,22 @@ effect(()=>{
 
 const testopenApiKey = async () => {
   const openai = new OpenAI({apiKey: openApiKey.value, dangerouslyAllowBrowser: true});
-  openApiTestResult.value = "NOT_TESTED"
+  openApiTestResult.value = ApiTest.Unknown
   try {
   await openai.chat.completions.create({
     messages: [{ role: 'user', content: 'Say this is a test' }],
     model: 'gpt-4o-mini',
   });
-  openApiTestResult.value = "SUCCESSFULL";
+  openApiTestResult.value = ApiTest.Success
   } catch (e) {
-    openApiTestResult.value = "FAILED";
+    openApiTestResult.value = ApiTest.Failed
   }
 }
 
 const OpenApiSuccessResult = () => {
-  if (openApiTestResult.value === "NOT_TESTED") return "❔"
-  if (openApiTestResult.value === "SUCCESSFULL") return "✅"
-  if (openApiTestResult.value === "FAILED") return "❌"
+  if (openApiTestResult.value === ApiTest.Unknown) return "🤷"
+  if (openApiTestResult.value === ApiTest.Success) return "✅"
+  if (openApiTestResult.value === ApiTest.Failed) return "❌"
   return "❓"
 }
 
