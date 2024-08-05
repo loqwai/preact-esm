@@ -1,28 +1,20 @@
 import { html } from 'htm';
-import { Signal, signal, useSignal, useComputed, computed, effect } from 'preact/signals';
+import {signal, useSignal, useComputed, computed, effect } from 'preact/signals';
 import {OpenAI} from 'openai'
-
-/** @typedef {"SUCCESSFULL"|"FAILED"|"UNKNOWN"} ApiTest */
 
 const ApiTest = {
   Success: "SUCCESSFULL",
   Failed: "FAILED",
   Unknown: "UNKNOWN",
 }
-const openApiKey = signal(localStorage.getItem("OPENAPI_KEY") ?? "");
-const openApiKeyValid = signal(localStorage.getItem("OPENAPI_KEY_VALID") === "true");
 
-/** @type {Signal<ApiTest>} */
-const openApiTestResult = signal(openApiKeyValid.value ? ApiTest.Success : ApiTest.Unknown);
+const openApiKey = signal(localStorage.getItem("OPENAPI_KEY") ?? "");
+const openApiTestResult = signal(localStorage.getItem("OPENAPI_KEY_VALID") === "true" ? ApiTest.Success : ApiTest.Unknown);
 const configOpen = computed(()=> openApiTestResult.value !== ApiTest.Success)
 
 effect(()=>{
   localStorage.setItem("OPENAPI_KEY", openApiKey.value);
   localStorage.setItem("OPENAPI_KEY_VALID", String(openApiTestResult.value === ApiTest.Success));
-})
-
-effect(()=>{
-  openApiKeyValid.value = (openApiTestResult.value === 'OPENAPI_KEY_VALID');
 })
 
 const testopenApiKey = async () => {
@@ -62,7 +54,7 @@ const CollapsableSection = ({title, open:externallyOpen, children}) => {
   const open = useComputed(()=> manuallyOpen.value || externallyOpen.value);
 
   return html`<section className="CollapsableSection ${ !open.value ? 'collapsed' : ''}" >
-     <header onClick=${()=>manuallyOpen.value = !manuallyOpen.value}>${title}</header>
+     <header onClick=${()=>manuallyOpen.value = !manuallyOpen.value}>${externallyOpen.value ? '🔓': ''} ${title}</header>
      <div>${children}</div>
   </section>
 `
