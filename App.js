@@ -26,12 +26,15 @@ const chat = {
   history: signal([]),
   message: signal(""),
   sendMessage: async () => {
-    chat.history.value = [...chat.history.value, chat.message.value];
+    const message = chat.message.value.trim();
+    if(message.length === 0) return;
+    chat.message.value = "";
+    chat.history.value = [...chat.history.value, message];
     const openai = new OpenAI({apiKey: openApiKey.value, dangerouslyAllowBrowser: true});
     const response = await openai.chat.completions.create({
       messages: [
         { role: 'system', content: 'You describe yourself as such:' + personality.description.value },
-        { role: 'user', content: chat.message.value },
+        { role: 'user', content: message },
       ],
       model: 'gpt-4o-mini',
       max_tokens: 150,
@@ -75,6 +78,11 @@ const OpenApiSuccessResult = () => {
   if (openApiTestResult.value === ApiTest.Failed) return "❌"
   return "❓"
 }
+effect(()=>{
+  // if the chat message ends with a newline, send it.
+  console.log(chat.message.value)
+  if (chat.message.value.endsWith("\n")) chat.sendMessage();
+})
 export const App = () => html`
 <div>
   <${CollapsableSection} title="API Settings" open=${!apiReady}>
@@ -91,7 +99,7 @@ export const App = () => html`
   <//>
   <${CollapsableSection} title="Chat" open=${chatReady} canManuallyOpen=${false}>
     <${ChatHistory} history=${chat.history}/>
-    <textarea value=${chat.message} onChange=${(e)=>chat.message.value = e.currentTarget.value} ></textarea>
+    <textarea value=${chat.message} onKeyUp=${(e)=>chat.message.value = e.currentTarget.value} ></textarea>
     <button onClick=${(e) => chat.sendMessage()} >Chat</button>
   <//>
 </div>
